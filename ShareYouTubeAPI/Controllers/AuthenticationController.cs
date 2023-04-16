@@ -14,13 +14,15 @@ namespace ShareYouTubeAPI.Controllers
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> userManager;
+        private readonly UserManager<IdentityUser> userManager;
+        private readonly RoleManager<IdentityRole> roleManager; 
         private readonly IConfiguration _configuration;
 
-        public AuthenticationController(UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        public AuthenticationController(UserManager<IdentityUser> userManager, IConfiguration configuration, RoleManager<IdentityRole> roleManager)
         {
             this.userManager = userManager;
             _configuration = configuration;
+            this.roleManager = roleManager; 
         }
 
         [HttpPost]
@@ -64,7 +66,8 @@ namespace ShareYouTubeAPI.Controllers
 
         [HttpPost]
         [Route("register")]
-        public IActionResult Register([FromBody] RegistrationDTO model)
+        public async Task<IActionResult> Register([FromBody] RegistrationDTO model, string role)
+//        public IActionResult Register([FromBody] RegistrationDTO model)
         {
             if (!ModelState.IsValid)
             {
@@ -72,10 +75,17 @@ namespace ShareYouTubeAPI.Controllers
             }
 
             var userExists = userManager.FindByNameAsync(model.Username).GetAwaiter().GetResult();
+            var mailExists = userManager.FindByEmailAsync(model.Email).GetAwaiter().GetResult();
             if (userExists != null)
             {
+               //  return StatusCode(StatusCodes.Status403Forbidden,new Response { Status = "Error", MessageProcessingHandler = "User already exists" });
                 return BadRequest("User already exists");
             }
+            if (mailExists != null)
+            {
+                return BadRequest("Email already exists");
+            }
+
 
             ApplicationUser user = new ApplicationUser()
             {
@@ -83,13 +93,24 @@ namespace ShareYouTubeAPI.Controllers
                 SecurityStamp = Guid.NewGuid().ToString(),
                 UserName = model.Username
             };
-            var result = userManager.CreateAsync(user, model.Password).GetAwaiter().GetResult();
-            if (!result.Succeeded)
+            if (await roleManager.RoleExistsAsync(role))
             {
-                return BadRequest("Validation failed! Please check user details and try again.");
-            }
+                var result = userManager.CreateAsync(user, model.Password).GetAwaiter().GetResult();
+                if (!result.Succeeded)
+                {
+                    return BadRequest("Validation failed! Please check user details and try again.");
+                }
 
-            return Ok();
+                //insert role
+
+                await userManager.AddToRoleAsync(user, role);
+                return Ok("User is create!");
+            }
+            else
+            {
+                return BadRequest("This role is not exist!");
+            }
+            
         }
 
     }
