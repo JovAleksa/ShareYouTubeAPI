@@ -6,6 +6,10 @@ namespace ShareYouTubeAPI.Models
 {
     public class AppDbContext : IdentityDbContext<IdentityUser>
     {
+        public DbSet<AppUser> AppUsers { get; set; }
+        public DbSet<Video> Videos { get; set; }
+        public DbSet<Like> Likes { get; set; }
+        public DbSet<Comment> Comments { get; set; }
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

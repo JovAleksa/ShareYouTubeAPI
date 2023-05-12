@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShareYouTubeAPI.Models;
 
@@ -11,9 +12,11 @@ using ShareYouTubeAPI.Models;
 namespace ShareYouTubeAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230512120027_migratio_models")]
+    partial class migratio_models
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,14 +54,14 @@ namespace ShareYouTubeAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "50dbd20a-cadd-4e00-8d67-ac29b7408d62",
+                            Id = "31d8969f-f422-474e-8103-17a4144b4ae8",
                             ConcurrencyStamp = "1",
                             Name = "Admin",
                             NormalizedName = "Admin"
                         },
                         new
                         {
-                            Id = "8b2771b8-418f-4ce0-b5c4-bf4a79dd4997",
+                            Id = "7901a6fb-3846-4d4c-8117-b0f8771b59ca",
                             ConcurrencyStamp = "2",
                             Name = "User",
                             NormalizedName = "User"

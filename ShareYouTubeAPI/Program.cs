@@ -4,8 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using NETCore.MailKit.Core;
 using ShareYouTubeAPI.Models;
 using System.Text;
+using User.Manager.Service.Models;
+using User.Manager.Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 // For Entity Framework  
@@ -43,6 +46,21 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
 });
+
+//add config for required email
+
+builder.Services.Configure<IdentityOptions>(
+    opts => opts.SignIn.RequireConfirmedEmail = true);
+
+//add config for lost password
+builder.Services.Configure<DataProtectionTokenProviderOptions>(opts => opts.TokenLifespan=TimeSpan.FromHours(10));   
+
+//add email config
+var configuration = builder.Configuration;
+var emailConfig = configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
+builder.Services.AddSingleton(emailConfig);
+builder.Services.AddScoped<IEmailServices, EmailServices>();
+
 
 builder.Services.AddAuthorization();
 // Add services to the container.
